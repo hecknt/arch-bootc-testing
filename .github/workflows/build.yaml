@@ -93,14 +93,15 @@ jobs:
           sep-annotations: " "
 
       - name: Build Image
-        id: build
-        run: |
-          sudo buildah build \
-            --storage-driver=overlay \
-            --format=docker \
-            --file ./Containerfile \
-            --tag ${IMAGE_NAME}:${DEFAULT_TAG} \
-            .
+        id: build_image
+        uses: redhat-actions/buildah-build@7a95fa7ee0f02d552a32753e7414641a04307056 # v2
+        with:
+          containerfiles: |
+            ./Containerfile
+          image: ${{ env.IMAGE_NAME }}
+          tags: ${{ steps.metadata.outputs.tags }}
+          labels: ${{ steps.metadata.outputs.labels }}
+          oci: true
 
       - name: Login to GitHub Container Registry
         uses: docker/login-action@184bdaa0721073962dff0199f1fb9940f07167d1 # v3
