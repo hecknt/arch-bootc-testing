@@ -64,6 +64,10 @@ RUN pacman -S --noconfirm \
     nushell \
     zsh
 
+# Enable systemd services
+RUN systemctl enable \
+    NetworkManager
+
 # Regression with newer dracut broke this
 RUN mkdir -p /etc/dracut.conf.d && \
     printf "systemdsystemconfdir=/etc/systemd/system\nsystemdsystemunitdir=/usr/lib/systemd/system\n" | tee /etc/dracut.conf.d/fix-bootc.conf
