@@ -164,6 +164,9 @@ RUN systemctl enable --global \
 RUN ln -s ./nvim /usr/bin/vim
 RUN ln -s ./nvim /usr/bin/vi
 
+# Add wheel group to sudoers file
+RUN echo "%wheel      ALL=(ALL:ALL) ALL" | tee -a /etc/sudoers
+
 # Regression with newer dracut broke this
 RUN mkdir -p /etc/dracut.conf.d && \
   printf "systemdsystemconfdir=/etc/systemd/system\nsystemdsystemunitdir=/usr/lib/systemd/system\n" | tee /etc/dracut.conf.d/fix-bootc.conf
