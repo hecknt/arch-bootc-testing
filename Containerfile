@@ -3,8 +3,8 @@ FROM docker.io/archlinux/archlinux:latest
 ENV DRACUT_NO_XATTR=1
 
 # Source for this codeblock: XeniaMeraki/XeniaOS
-# Set it up such that pacman will automatically clean package cache after each install
-# So that we don't run out of memory in image generation and don't need to append --clean after everything
+## Set it up such that pacman will automatically clean package cache after each install
+## So that we don't run out of memory in image generation and don't need to append --clean after everything
 RUN echo -e "[Trigger]\n\
   Operation = Install\n\
   Operation = Upgrade\n\
@@ -16,6 +16,13 @@ RUN echo -e "[Trigger]\n\
   Depends = coreutils\n\
   When = PostTransaction\n\
   Exec = /usr/bin/rm -rf /var/cache/pacman/pkg" | tee /usr/share/libalpm/hooks/package-cleanup.hook
+
+## Add Chaotic AUR repo
+RUN pacman-key --recv-key 3056513887B78AEB --keyserver keyserver.ubuntu.com
+RUN pacman-key --init && pacman-key --lsign-key 3056513887B78AEB
+RUN pacman -U 'https://cdn-mirror.chaotic.cx/chaotic-aur/chaotic-keyring.pkg.tar.zst' --noconfirm
+RUN pacman -U 'https://cdn-mirror.chaotic.cx/chaotic-aur/chaotic-mirrorlist.pkg.tar.zst' --noconfirm
+RUN echo -e '[chaotic-aur]\nInclude = /etc/pacman.d/chaotic-mirrorlist' >> /etc/pacman.conf
 
 # Refresh & upgrade all packages before we get started.
 RUN pacman -Syu --noconfirm
@@ -37,12 +44,26 @@ RUN pacman -S --noconfirm \
   dbus-glib \
   glib2 \
   strace \
+  glibc-locales \
+  plymouth \
   shadow
 
 # Command Line utilities / shells
 RUN pacman -S --noconfirm \
   arch-install-scripts \
   fastfetch \
+  lsof \
+  wget \
+  curl \
+  jq \
+  less \
+  openssh \
+  man-db \
+  powertop \
+  tree \
+  usbutils \
+  tar \
+  whois \
   7zip \
   unrar \
   unzip \
@@ -60,8 +81,66 @@ RUN pacman -S --noconfirm \
   btop \
   htop \
   nvtop \
+  bash-completion \
   nushell \
-  zsh
+  zsh \
+  zsh-completions
+
+# Desktop Section
+## Drivers
+RUN pacman -S --noconfirm \
+  amd-ucode \
+  intel-ucode \
+  edk2-shell \
+  efibootmgr \
+  shim \
+  mesa \
+  libva-intel-driver \
+  libva-mesa-driver \
+  vpl-gpu-rt \
+  vulkan-icd-loader \
+  vulkan-intel \
+  vulkan-radeon
+
+## Pipewire
+RUN pacman -S --noconfirm \
+  pipewire \
+  pipewire-pulse \
+  pipewire-zeroconf \
+  pipewire-ffado \
+  pipewire-libcamera \
+  sof-firmware \
+  wireplumber
+
+## Theming
+RUN pacman -S --noconfirm \
+  adw-gtk-theme \
+  nwg-look \
+  chaotic-aur/qt6ct-kde \
+  qt5ct
+
+## Desktop Environment (Dank)
+RUN pacman -S --noconfirm \
+  niri \
+  hyprland \
+  chaotic-aur/grimblast-git \
+  chaotic-aur/dms-shell-git \
+  brightnessctl \
+  cava \
+  wl-clipboard \
+  gammastep \
+  appstream-glib \
+  gnome-keyring \
+  cliphist \
+  dgop \
+  quickshell \
+  kitty \
+  ghostty
+
+## XDG desktop portals
+RUN pacman -S --noconfirm \
+  xdg-desktop-portal-gnome \
+  xdg-desktop-portal-gtk
 
 # Non-system level packages! distrobox, toolbox, flatpak... etc. Also podman and docker.
 RUN pacman -S --noconfirm \
@@ -73,7 +152,17 @@ RUN pacman -S --noconfirm \
 
 # Enable systemd services
 RUN systemctl enable \
-  NetworkManager.service
+  NetworkManager.service \
+  systemd-resolved.service
+
+RUN systemctl enable --global \
+  dms.service \
+  gnome-keyring-daemon.service \
+  gnome-keyring-daemon.socket
+
+# Link neovim to vi and vim binaries
+RUN ln -s ./nvim /usr/bin/vim
+RUN ln -s ./nvim /usr/bin/vi
 
 # Regression with newer dracut broke this
 RUN mkdir -p /etc/dracut.conf.d && \
@@ -100,7 +189,6 @@ RUN sed -i 's|^HOME=.*|HOME=/var/home|' "/etc/default/useradd" && \
   printf "[composefs]\nenabled = yes\n[sysroot]\nreadonly = true\n" | tee "/usr/lib/ostree/prepare-root.conf"
 
 # Setup a temporary root passwd (1234) for dev purposes
-# RUN pacman -S whois --noconfirm
 # RUN usermod -p "$(echo "1234" | mkpasswd -s)" root
 
 RUN bootc container lint
