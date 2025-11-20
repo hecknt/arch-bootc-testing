@@ -24,12 +24,16 @@ RUN pacman -U 'https://cdn-mirror.chaotic.cx/chaotic-aur/chaotic-keyring.pkg.tar
 RUN pacman -U 'https://cdn-mirror.chaotic.cx/chaotic-aur/chaotic-mirrorlist.pkg.tar.zst' --noconfirm
 RUN echo -e '[chaotic-aur]\nInclude = /etc/pacman.d/chaotic-mirrorlist' >> /etc/pacman.conf
 
+# Add Multilib Repo
+RUN echo -e '[multilib]\nInclude = /etc/pacman.d/mirrorlist' >> /etc/pacman.conf
+
 # Refresh & upgrade all packages before we get started.
 RUN pacman -Syu --noconfirm
 
 # Base packages. The bare essentials.
 RUN pacman -S --noconfirm \
   base \
+  base-devel \
   dracut \
   linux-zen \
   linux-firmware \
@@ -52,6 +56,9 @@ RUN pacman -S --noconfirm \
 RUN pacman -S --noconfirm \
   arch-install-scripts \
   fastfetch \
+  git \
+  cryfs \
+  rust \
   lsof \
   wget \
   curl \
@@ -91,7 +98,6 @@ RUN pacman -S --noconfirm \
 RUN pacman -S --noconfirm \
   amd-ucode \
   intel-ucode \
-  edk2-shell \
   efibootmgr \
   shim \
   mesa \
@@ -100,7 +106,8 @@ RUN pacman -S --noconfirm \
   vpl-gpu-rt \
   vulkan-icd-loader \
   vulkan-intel \
-  vulkan-radeon
+  vulkan-radeon \
+  clinfo
 
 ## Pipewire
 RUN pacman -S --noconfirm \
@@ -135,12 +142,38 @@ RUN pacman -S --noconfirm \
   dgop \
   quickshell \
   kitty \
-  ghostty
+  ghostty \
+  sxiv \
+  mpv \
+  fprintd \
+  wev
+
+## Fonts
+RUN pacman -S --noconfirm \
+  ttf-jetbrains-mono \
+  ttf-fira-code \
+  ttf-ibm-plex \
+  ttf-jetbrains-mono-nerd \
+  ttf-firacode-nerd \
+  otf-font-awesome \
+  noto-fonts \
+  noto-fonts-cjk \
+  noto-fonts-emoji \
+  noto-fonts-extra
 
 ## XDG desktop portals
 RUN pacman -S --noconfirm \
   xdg-desktop-portal-gnome \
   xdg-desktop-portal-gtk
+
+## Games! Steam! Games!
+RUN pacman -S --noconfirm \
+  steam \
+  gamescope \
+  umu-launcher \
+  wine \
+  winetricks \
+  mangohud
 
 # Non-system level packages! distrobox, toolbox, flatpak... etc. Also podman and docker.
 RUN pacman -S --noconfirm \
@@ -148,7 +181,7 @@ RUN pacman -S --noconfirm \
   docker \
   distrobox \
   toolbox \
-  flatpak
+  chaotic-aur/flatpak-git
 
 # Enable systemd services
 RUN systemctl enable \
@@ -172,7 +205,6 @@ RUN mkdir -p /etc/dracut.conf.d && \
   printf "systemdsystemconfdir=/etc/systemd/system\nsystemdsystemunitdir=/usr/lib/systemd/system\n" | tee /etc/dracut.conf.d/fix-bootc.conf
 
 RUN --mount=type=tmpfs,dst=/tmp --mount=type=tmpfs,dst=/root \
-  pacman -S --noconfirm base-devel git rust && \
   git clone "https://github.com/bootc-dev/bootc.git" /tmp/bootc && \
   make -C /tmp/bootc bin install-all install-initramfs-dracut && \
   sh -c 'export KERNEL_VERSION="$(basename "$(find /usr/lib/modules -maxdepth 1 -type d | grep -v -E "*.img" | tail -n 1)")" && \
