@@ -112,6 +112,7 @@ RUN pacman -S --noconfirm \
 ## Desktop Environment (Dank)
 RUN pacman -S --noconfirm \
   niri \
+  xwayland-satellite \
   hyprland \
   chaotic-aur/grimblast-git \
   chaotic-aur/dms-shell-git \
@@ -197,6 +198,10 @@ RUN sed -i 's|^HOME=.*|HOME=/var/home|' "/etc/default/useradd" && \
   ln -s var/roothome /root && \
   ln -s var/home /home && \
   ln -s sysroot/ostree /ostree
+
+# The package list is located in /var/lib/pacman. By default, this won't be saved when we boot into the image. So:
+RUN mv -v /var/lib/pacman /usr/lib/pacman && \
+  systemctl enable var-lib-pacman.mount
 
 # Setup a temporary root passwd (1234) for dev purposes
 # RUN usermod -p "$(echo "1234" | mkpasswd -s)" root
