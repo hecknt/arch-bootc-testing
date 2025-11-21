@@ -1,5 +1,7 @@
 # Hec's Arch Linux Bootc Builds
 
+[![Build container image](https://github.com/hecknt/arch-bootc-testing/actions/workflows/build.yaml/badge.svg)](https://github.com/hecknt/arch-bootc-testing/actions/workflows/build.yaml)
+
 These are experimental builds of [Arch Linux](https://archlinux.org) built for [bootc](https://github.com/bootc-dev/bootc) usage. They are currently very barebones and should not be used outside of testing and experimentation.
 
 ## Building
