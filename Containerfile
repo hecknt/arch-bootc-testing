@@ -134,7 +134,8 @@ RUN pacman -S --noconfirm \
   sxiv \
   mpv \
   fprintd \
-  wev
+  wev \
+  ddcutil
 
 ## Fonts
 RUN pacman -S --noconfirm \
