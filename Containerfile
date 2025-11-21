@@ -35,6 +35,9 @@ RUN pacman -S --noconfirm \
   plymouth \
   shadow
 
+# Replace iptables with iptables-nft
+RUN yes | pacman -S iptables-nft
+
 # Command Line utilities / shells
 RUN pacman -S --noconfirm \
   arch-install-scripts \
