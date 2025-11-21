@@ -90,6 +90,10 @@ RUN pacman -S --noconfirm \
   vulkan-icd-loader \
   vulkan-intel \
   vulkan-radeon \
+  lib32-vulkan-icd-loader \
+  lib32-vulkan-intel \
+  lib32-vulkan-radeon \
+  lib32-mesa \
   clinfo
 
 ## Pipewire
