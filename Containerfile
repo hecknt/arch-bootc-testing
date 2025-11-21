@@ -223,11 +223,12 @@ RUN --mount=type=tmpfs,dst=/tmp --mount=type=tmpfs,dst=/root \
 
 # Necessary for general behavior expected by image-based systems
 RUN sed -i 's|^HOME=.*|HOME=/var/home|' "/etc/default/useradd" && \
-  rm -rf /boot /home /root /usr/local /srv && \
+  rm -rf /boot /home /root /usr/local /srv /mnt && \
   mkdir -p /var /sysroot /boot /usr/lib/ostree && \
   ln -s var/opt /opt && \
   ln -s var/roothome /root && \
   ln -s var/home /home && \
+  ln -s var/mnt /mnt && \
   ln -s sysroot/ostree /ostree
 
 # The package list is located in /var/lib/pacman. By default, this won't be saved when we boot into the image. So:
