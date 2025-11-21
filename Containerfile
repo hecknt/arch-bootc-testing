@@ -71,6 +71,7 @@ RUN pacman -S --noconfirm \
   btop \
   htop \
   nvtop \
+  python-pipx \
   bash-completion \
   nushell \
   zsh \
@@ -135,7 +136,8 @@ RUN pacman -S --noconfirm \
   mpv \
   fprintd \
   wev \
-  ddcutil
+  ddcutil \
+  ydotool
 
 ## Fonts
 RUN pacman -S --noconfirm \
@@ -164,13 +166,33 @@ RUN pacman -S --noconfirm \
   winetricks \
   mangohud
 
-# Non-system level packages! distrobox, toolbox, flatpak... etc. Also podman and docker.
+# Non-system level packages! distrobox, toolbox, flatpak... etc. Also podman and docker. And LXC.
 RUN pacman -S --noconfirm \
   podman \
   docker \
   distrobox \
   toolbox \
-  chaotic-aur/flatpak-git
+  podman-compose \
+  docker-compose \
+  docker-buildx \
+  chaotic-aur/flatpak-git \
+  flatpak-builder \
+  lxc \
+  incus \
+  incus-tools
+
+# ADB, Virtualization, Building tools...
+RUN pacman -S --noconfirm \
+  android-tools \
+  android-udev \
+  libvirt \
+  qemu-desktop \
+  edk2-ovmf \
+  guestfs-tools \
+  virt-manager \
+  pnpm \
+  bpftop \
+  bpftrace
 
 # Enable systemd services
 RUN systemctl enable \
@@ -198,7 +220,9 @@ RUN --mount=type=tmpfs,dst=/tmp \
   rm -drf /tmp/paru
 
 RUN paru -S --noconfirm --removemake \
-  aur/bootupd-git
+  aur/bootupd-git \
+  aur/podman-tui-bin \
+  aur/bootc-bcvk
 
 USER root
 WORKDIR /
