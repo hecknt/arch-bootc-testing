@@ -210,7 +210,7 @@ RUN userdel -r build && \
   rm -rf \
   /tmp/* \
   /var/cache/pacman/pkg/* && \
-  pacman -Rns --noconfirm paru-bin
+  pacman -Rns --noconfirm paru-bin paru-bin-debug
 
 # Link neovim to vi and vim binaries
 RUN ln -s ./nvim /usr/bin/vim && \
