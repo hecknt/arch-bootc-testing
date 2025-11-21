@@ -177,6 +177,37 @@ RUN systemctl enable --global \
   gnome-keyring-daemon.service \
   gnome-keyring-daemon.socket
 
+# Create build user
+RUN useradd -m --shell=/bin/bash build && usermod -L build && \
+  echo "build ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers && \
+  echo "root ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
+
+# Install AUR packages
+USER build
+WORKDIR /home/build
+RUN --mount=type=tmpfs,dst=/tmp \
+  git clone https://aur.archlinux.org/paru-bin.git --single-branch /tmp/paru && \
+  pushd /tmp/paru && \
+  makepkg -si --noconfirm && \
+  popd && \
+  rm -drf /tmp/paru
+
+RUN paru -S --noconfirm --removemake \
+  aur/bootupd-git
+
+USER root
+WORKDIR /
+# Cleanup, delete build user, and remove paru
+RUN userdel -r build && \
+  rm -drf /home/build && \
+  sed -i '/build ALL=(ALL) NOPASSWD: ALL/d' /etc/sudoers && \
+  sed -i '/root ALL=(ALL) NOPASSWD: ALL/d' /etc/sudoers && \
+  rm -rf /home/build && \
+  rm -rf \
+  /tmp/* \
+  /var/cache/pacman/pkg/* && \
+  pacman -Rns paru-bin
+
 # Link neovim to vi and vim binaries
 RUN ln -s ./nvim /usr/bin/vim && \
   ln -s ./nvim /usr/bin/vi
