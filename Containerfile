@@ -1,3 +1,6 @@
+FROM scratch AS ctx
+COPY build_files /
+
 FROM docker.io/archlinux/archlinux:latest
 COPY system_files /
 
@@ -195,7 +198,8 @@ RUN pacman -S --noconfirm \
   virt-manager \
   pnpm \
   bpftop \
-  bpftrace
+  bpftrace \
+  --assume-installed vim # we have neovim, we don't need vim
 
 # Enable systemd services
 RUN systemctl enable \
@@ -222,10 +226,16 @@ RUN --mount=type=tmpfs,dst=/tmp \
   popd && \
   rm -drf /tmp/paru
 
+RUN --mount=type=tmpfs,dst=/tmp --mount=type=bind,from=ctx,src=/,dst=/ctx \
+  sudo cp -r /ctx /tmp/pkgbuilds && \
+  sudo chown build:build /tmp/pkgbuilds -R && \
+  pushd /tmp/pkgbuilds/bootc-bcvk && \
+  makepkg -si --noconfirm && \
+  popd
+
 RUN paru -S --noconfirm --removemake \
   aur/bootupd-git \
-  aur/podman-tui-bin \
-  aur/bootc-bcvk
+  aur/podman-tui-bin
 
 USER root
 WORKDIR /
@@ -238,7 +248,7 @@ RUN userdel -r build && \
   rm -rf \
   /tmp/* \
   /var/cache/pacman/pkg/* && \
-  pacman -Rns --noconfirm paru-bin paru-bin-debug
+  pacman -Rns --noconfirm paru-bin
 
 # Link neovim to vi and vim binaries
 RUN ln -s ./nvim /usr/bin/vim && \
@@ -270,4 +280,4 @@ RUN mv -v /var/lib/pacman /usr/lib/pacman && \
 # Setup a temporary root passwd (1234) for dev purposes
 # RUN usermod -p "$(echo "1234" | mkpasswd -s)" root
 
-RUN bootc container lint
+RUN bootc container lint --no-truncate
