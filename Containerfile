@@ -3,11 +3,6 @@ COPY system_files /
 
 ENV DRACUT_NO_XATTR=1
 
-# The package list is located in /var/lib/pacman. Anything under /var will not be saved to the image.
-# To counteract this, we will move /var/lib/pacman to /usr/lib/pacman, and in /etc/pacman.conf we set DBPath to /usr/lib/pacman.
-# This gives us our package list. You can see what packages are installed in your running image by using pacman -Q. Go ahead. Look at them.
-RUN mv -v /var/lib/pacman /usr/lib/pacman
-
 # Add Chaotic AUR repo
 RUN pacman-key --recv-key 3056513887B78AEB --keyserver keyserver.ubuntu.com
 RUN pacman-key --init && pacman-key --lsign-key 3056513887B78AEB
@@ -244,6 +239,10 @@ RUN sed -i 's|^HOME=.*|HOME=/var/home|' "/etc/default/useradd" && \
   ln -s var/home /home && \
   ln -s var/mnt /mnt && \
   ln -s sysroot/ostree /ostree
+
+# The package list is located in /var/lib/pacman. By default, this won't be saved when we boot into the image. So:
+RUN mv -v /var/lib/pacman /usr/lib/pacman && \
+  systemctl enable var-lib-pacman.mount
 
 # Setup a temporary root passwd (1234) for dev purposes
 # RUN usermod -p "$(echo "1234" | mkpasswd -s)" root

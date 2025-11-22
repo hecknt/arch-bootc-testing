@@ -1,0 +1,11 @@
+[Unit]
+Description=Bind mount /usr/lib/pacman to /var/lib/pacman
+
+[Mount]
+What=/usr/lib/pacman
+Where=/var/lib/pacman
+Type=none
+Options=bind
+
+[Install]
+WantedBy=local-fs.target
