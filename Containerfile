@@ -1,17 +1,19 @@
-FROM scratch AS ctx
-COPY build_files /
-
 FROM docker.io/archlinux/archlinux:latest
 COPY system_files /
 
 ENV DRACUT_NO_XATTR=1
 
-## Add Chaotic AUR repo
+# Add Chaotic AUR repo
 RUN pacman-key --recv-key 3056513887B78AEB --keyserver keyserver.ubuntu.com
 RUN pacman-key --init && pacman-key --lsign-key 3056513887B78AEB
 RUN pacman -U 'https://cdn-mirror.chaotic.cx/chaotic-aur/chaotic-keyring.pkg.tar.zst' --noconfirm
 RUN pacman -U 'https://cdn-mirror.chaotic.cx/chaotic-aur/chaotic-mirrorlist.pkg.tar.zst' --noconfirm
 RUN echo -e '[chaotic-aur]\nInclude = /etc/pacman.d/chaotic-mirrorlist' >> /etc/pacman.conf
+
+# Add bootc repo
+RUN pacman-key --recv-key 5DE6BF3EBC86402E7A5C5D241FA48C960F9604CB --keyserver keyserver.ubuntu.com
+RUN pacman-key --lsign-key 5DE6BF3EBC86402E7A5C5D241FA48C960F9604CB
+RUN echo -e '[bootc]\nSigLevel = Required\nServer=https://github.com/hecknt/arch-bootc-pkgs/releases/download/$repo' >> /etc/pacman.conf
 
 # Refresh & upgrade all packages before we get started.
 RUN pacman -Syu --noconfirm
@@ -178,8 +180,10 @@ RUN pacman -S --noconfirm \
   docker \
   distrobox \
   toolbox \
+  bootc/podman-tui \
   podman-compose \
   docker-compose \
+  bootc/bcvk \
   docker-buildx \
   chaotic-aur/flatpak-git \
   flatpak-builder \
@@ -211,45 +215,6 @@ RUN systemctl enable --global \
   gnome-keyring-daemon.service \
   gnome-keyring-daemon.socket
 
-# Create build user
-RUN useradd -m --shell=/bin/bash build && usermod -L build && \
-  echo "build ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers && \
-  echo "root ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
-
-# Install AUR packages
-USER build
-WORKDIR /home/build
-RUN --mount=type=tmpfs,dst=/tmp \
-  git clone https://aur.archlinux.org/paru-bin.git --single-branch /tmp/paru && \
-  pushd /tmp/paru && \
-  makepkg -si --noconfirm && \
-  popd && \
-  rm -drf /tmp/paru
-
-RUN --mount=type=tmpfs,dst=/tmp --mount=type=bind,from=ctx,src=/,dst=/ctx \
-  sudo cp -r /ctx /tmp/pkgbuilds && \
-  sudo chown build:build /tmp/pkgbuilds -R && \
-  pushd /tmp/pkgbuilds/bootc-bcvk && \
-  makepkg -si --noconfirm && \
-  popd
-
-RUN paru -S --noconfirm --removemake \
-  aur/bootupd-git \
-  aur/podman-tui-bin
-
-USER root
-WORKDIR /
-# Cleanup, delete build user, and remove paru
-RUN userdel -r build && \
-  rm -drf /home/build && \
-  sed -i '/build ALL=(ALL) NOPASSWD: ALL/d' /etc/sudoers && \
-  sed -i '/root ALL=(ALL) NOPASSWD: ALL/d' /etc/sudoers && \
-  rm -rf /home/build && \
-  rm -rf \
-  /tmp/* \
-  /var/cache/pacman/pkg/* && \
-  pacman -Rns --noconfirm paru-bin
-
 # Link neovim to vi and vim binaries
 RUN ln -s ./nvim /usr/bin/vim && \
   ln -s ./nvim /usr/bin/vi
@@ -257,10 +222,11 @@ RUN ln -s ./nvim /usr/bin/vim && \
 # Add wheel group to sudoers file
 RUN echo "%wheel      ALL=(ALL:ALL) ALL" | tee -a /etc/sudoers
 
-RUN --mount=type=tmpfs,dst=/tmp --mount=type=tmpfs,dst=/root \
-  git clone "https://github.com/frostyard/bootc.git" -b pr1779 /tmp/bootc && \
-  make -C /tmp/bootc bin install-all && \
-  sh -c 'export KERNEL_VERSION="$(basename "$(find /usr/lib/modules -maxdepth 1 -type d | grep -v -E "*.img" | tail -n 1)")" && \
+RUN pacman -S --noconfirm \
+  bootc/bootc \
+  bootc/bootupd
+
+RUN sh -c 'export KERNEL_VERSION="$(basename "$(find /usr/lib/modules -maxdepth 1 -type d | grep -v -E "*.img" | tail -n 1)")" && \
   dracut --force --no-hostonly --reproducible --zstd --verbose --kver "$KERNEL_VERSION"  "/usr/lib/modules/$KERNEL_VERSION/initramfs.img"'
 
 # Necessary for general behavior expected by image-based systems
