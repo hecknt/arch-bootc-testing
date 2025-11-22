@@ -208,6 +208,7 @@ RUN pacman -S --noconfirm \
 # Enable systemd services
 RUN systemctl enable \
   NetworkManager.service \
+  systemd-sysusers.service \
   systemd-resolved.service
 
 RUN systemctl enable --global \
