@@ -3,6 +3,13 @@ COPY system_files /
 
 ENV DRACUT_NO_XATTR=1
 
+# Move /var/lib/pacman, /var/log/pacman.log, and /var/cache/pacman to /usr/lib/sysimage. 
+# The rest of this process is handled in system_files/etc/pacman.conf
+RUN mkdir -p /usr/lib/sysimage/{lib,cache,log} && \
+  mv /var/lib/pacman /usr/lib/sysimage/lib/pacman && \
+  mv /var/cache/pacman /usr/lib/sysimage/cache/pacman && \
+  mv /var/log/pacman.log /usr/lib/sysimage/log/pacman.log
+
 # Add Chaotic AUR repo
 RUN pacman-key --recv-key 3056513887B78AEB --keyserver keyserver.ubuntu.com
 RUN pacman-key --init && pacman-key --lsign-key 3056513887B78AEB
@@ -211,7 +218,6 @@ RUN systemctl enable \
   NetworkManager.service \
   systemd-sysusers.service \
   systemd-resolved.service
-
 RUN systemctl enable --global \
   dms.service \
   gnome-keyring-daemon.service \
@@ -224,12 +230,13 @@ RUN ln -s ./nvim /usr/bin/vim && \
 # Add wheel group to sudoers file
 RUN echo "%wheel      ALL=(ALL:ALL) ALL" | tee -a /etc/sudoers
 
+# Install bootc and bootupd (bootloader updater)
 RUN pacman -S --noconfirm \
   bootc/bootc \
   bootc/bootupd
 
-RUN sh -c 'export KERNEL_VERSION="$(basename "$(find /usr/lib/modules -maxdepth 1 -type d | grep -v -E "*.img" | tail -n 1)")" && \
-  dracut --force --no-hostonly --reproducible --zstd --verbose --kver "$KERNEL_VERSION"  "/usr/lib/modules/$KERNEL_VERSION/initramfs.img"'
+# Rebuild initramfs after bootc install
+RUN dracut --force --verbose "$(find /usr/lib/modules -maxdepth 1 -type d | grep -v -E "*.img" | tail -n 1)/initramfs.img"
 
 # Necessary for general behavior expected by image-based systems
 RUN sed -i 's|^HOME=.*|HOME=/var/home|' "/etc/default/useradd" && \
@@ -240,6 +247,9 @@ RUN sed -i 's|^HOME=.*|HOME=/var/home|' "/etc/default/useradd" && \
   ln -s var/home /home && \
   ln -s var/mnt /mnt && \
   ln -s sysroot/ostree /ostree
+
+# Cleanup pacman directories after installation
+RUN rm -rf /usr/lib/sysimage/log /usr/lib/sysimage/cache/pacman/pkg
 
 # The package list is located in /var/lib/pacman. By default, this won't be saved when we boot into the image. So:
 RUN mv -v /var/lib/pacman /usr/lib/pacman && \
