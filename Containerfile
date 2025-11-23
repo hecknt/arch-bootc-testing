@@ -55,6 +55,7 @@ RUN pacman -S --noconfirm \
   curl \
   jq \
   less \
+  just \
   openssh \
   man-db \
   powertop \
