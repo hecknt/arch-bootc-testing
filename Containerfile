@@ -115,6 +115,11 @@ RUN pacman -S --noconfirm \
   lib32-mesa \
   clinfo
 
+## Bluetooth
+RUN pacman -S --noconfirm \
+  bluez \
+  bluez-utils
+
 ## Pipewire
 RUN pacman -S --noconfirm \
   pipewire \
@@ -219,7 +224,8 @@ RUN pacman -S --noconfirm \
 RUN systemctl enable \
   NetworkManager.service \
   systemd-sysusers.service \
-  systemd-resolved.service
+  systemd-resolved.service \
+  bluetooth.service
 RUN systemctl enable --global \
   dms.service \
   gnome-keyring-daemon.service \
