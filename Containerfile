@@ -21,6 +21,8 @@ RUN echo -e '[chaotic-aur]\nInclude = /etc/pacman.d/chaotic-mirrorlist' >> /etc/
 RUN pacman-key --recv-key 5DE6BF3EBC86402E7A5C5D241FA48C960F9604CB --keyserver keyserver.ubuntu.com
 RUN pacman-key --lsign-key 5DE6BF3EBC86402E7A5C5D241FA48C960F9604CB
 RUN echo -e '[bootc]\nSigLevel = Required\nServer=https://github.com/hecknt/arch-bootc-pkgs/releases/download/$repo' >> /etc/pacman.conf
+# Add bootc-testing repo
+RUN echo -e '[bootc-testing]\nSigLevel = Required\nServer=https://github.com/hecknt/arch-bootc-pkgs/releases/download/$repo' >> /etc/pacman.conf
 
 # Refresh & upgrade all packages before we get started.
 RUN pacman -Syu --noconfirm
@@ -232,7 +234,7 @@ RUN echo "%wheel      ALL=(ALL:ALL) ALL" | tee -a /etc/sudoers
 
 # Install bootc and bootupd (bootloader updater)
 RUN pacman -S --noconfirm \
-  bootc/bootc \
+  bootc-testing/bootc-git \
   bootc/bootupd
 
 # Rebuild initramfs after bootc install
