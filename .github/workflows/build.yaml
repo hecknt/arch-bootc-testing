@@ -43,17 +43,15 @@ jobs:
           echo "IMAGE_REGISTRY=${IMAGE_REGISTRY,,}" >> ${GITHUB_ENV}
           echo "IMAGE_NAME=${IMAGE_NAME,,}" >> ${GITHUB_ENV}
 
-      # These stage versions are pinned by https://github.com/renovatebot/renovate
-      - name: Checkout
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
-
       - name: Mount BTRFS for podman storage
         id: container-storage-action
         uses: ublue-os/container-storage-action@main
-
         with:
-          target-dir: /var/lib/containers
           mount-opts: noatime,compress-force=zstd:2
+
+      # These stage versions are pinned by https://github.com/renovatebot/renovate
+      - name: Checkout
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
 
       - name: Get current date
         id: date
@@ -93,12 +91,6 @@ jobs:
           sep-tags: " "
           sep-annotations: " "
 
-      - name: Maximize build space
-        if: inputs.platform != 'arm64'
-        uses: ublue-os/remove-unwanted-software@cc0becac701cf642c8f0a6613bbdaf5dc36b259e # v9
-        with:
-          remove-codeql: true
-
       - name: Build Image
         id: build_image
         uses: redhat-actions/buildah-build@7a95fa7ee0f02d552a32753e7414641a04307056 # v2
@@ -109,8 +101,8 @@ jobs:
           tags: ${{ steps.metadata.outputs.tags }}
           labels: ${{ steps.metadata.outputs.labels }}
           oci: true
-          
-      - name: Print disk usage on action workspace
+
+      - name: Print disk usage after image build
         run: df -h
 
       - name: Login to GitHub Container Registry
