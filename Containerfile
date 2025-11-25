@@ -63,6 +63,7 @@ RUN pacman -S --noconfirm \
   cryfs \
   rust \
   lsof \
+  bc \
   wget \
   curl \
   jq \
