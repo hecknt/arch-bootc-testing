@@ -259,6 +259,9 @@ RUN sed -i 's|^HOME=.*|HOME=/var/home|' "/etc/default/useradd" && \
 # Cleanup pacman directories after installation
 RUN rm -rf /usr/lib/sysimage/log /usr/lib/sysimage/cache/pacman/pkg
 
+# Make /etc/resolv.conf link to /run/systemd/resolve/stub-resolv.conf by default
+RUN ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
+
 # Setup a temporary root passwd (1234) for dev purposes
 # RUN usermod -p "$(echo "1234" | mkpasswd -s)" root
 
