@@ -253,11 +253,12 @@ RUN dracut --force --verbose "$(find /usr/lib/modules -maxdepth 1 -type d | grep
 
 # Necessary for general behavior expected by image-based systems
 RUN sed -i 's|^HOME=.*|HOME=/var/home|' "/etc/default/useradd" && \
-  rm -rf /boot /home /root /usr/local /srv /mnt && \
+  rm -rf /boot /home /root /usr/local /srv /mnt /var && \
   mkdir -p /var /sysroot /boot /usr/lib/ostree && \
   ln -s var/opt /opt && \
   ln -s var/roothome /root && \
   ln -s var/home /home && \
+  ln -s var/srv /srv && \
   ln -s var/mnt /mnt && \
   ln -s sysroot/ostree /ostree
 
