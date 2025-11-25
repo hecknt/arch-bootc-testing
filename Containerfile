@@ -3,6 +3,9 @@ COPY system_files /
 
 ENV DRACUT_NO_XATTR=1
 
+# Temporary resolv.conf. We set --dns=none so that /etc/resolv.conf doesn't get mounted into the image.
+RUN echo -e 'nameserver 1.1.1.1' > /etc/resolv.conf
+
 # Move /var/lib/pacman, /var/log/pacman.log, and /var/cache/pacman to /usr/lib/sysimage.
 # The rest of this process is handled in system_files/etc/pacman.conf
 RUN mkdir -p /usr/lib/sysimage/{lib,cache,log} && \

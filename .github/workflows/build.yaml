@@ -100,6 +100,7 @@ jobs:
           image: ${{ env.IMAGE_NAME }}
           tags: ${{ steps.metadata.outputs.tags }}
           labels: ${{ steps.metadata.outputs.labels }}
+          extra-args: --dns=none
           oci: true
 
       - name: Print disk usage after image build
