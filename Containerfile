@@ -3,7 +3,7 @@ COPY system_files /
 
 ENV DRACUT_NO_XATTR=1
 
-# Move /var/lib/pacman, /var/log/pacman.log, and /var/cache/pacman to /usr/lib/sysimage. 
+# Move /var/lib/pacman, /var/log/pacman.log, and /var/cache/pacman to /usr/lib/sysimage.
 # The rest of this process is handled in system_files/etc/pacman.conf
 RUN mkdir -p /usr/lib/sysimage/{lib,cache,log} && \
   mv /var/lib/pacman /usr/lib/sysimage/lib/pacman && \
@@ -241,7 +241,9 @@ RUN echo "%wheel      ALL=(ALL:ALL) ALL" | tee -a /etc/sudoers
 # Install bootc and bootupd (bootloader updater)
 RUN pacman -S --noconfirm \
   bootc-testing/bootc-git \
-  bootc/bootupd
+  bootc/bootupd \
+  bootc/uupd && \
+  systemctl enable uupd.timer
 
 # Rebuild initramfs after bootc install
 RUN dracut --force --verbose "$(find /usr/lib/modules -maxdepth 1 -type d | grep -v -E "*.img" | tail -n 1)/initramfs.img"
