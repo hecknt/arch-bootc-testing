@@ -23,6 +23,8 @@ RUN pacman-key --lsign-key 5DE6BF3EBC86402E7A5C5D241FA48C960F9604CB
 RUN echo -e '[bootc]\nSigLevel = Required\nServer=https://github.com/hecknt/arch-bootc-pkgs/releases/download/$repo' >> /etc/pacman.conf
 # Add bootc-testing repo
 RUN echo -e '[bootc-testing]\nSigLevel = Required\nServer=https://github.com/hecknt/arch-bootc-pkgs/releases/download/$repo' >> /etc/pacman.conf
+# Add danklinux repo
+RUN echo -e '[danklinux]\nSigLevel = Required\nServer=https://github.com/hecknt/arch-danklinux-pkgs/releases/download/$repo' >> /etc/pacman.conf
 
 # Refresh & upgrade all packages before we get started.
 RUN pacman -Syu --noconfirm
@@ -144,7 +146,8 @@ RUN pacman -S --noconfirm \
   xwayland-satellite \
   hyprland \
   chaotic-aur/grimblast-git \
-  chaotic-aur/dms-shell-git \
+  danklinux/dms-shell \
+  danklinux/greetd-dms-greeter \
   brightnessctl \
   cava \
   wl-clipboard \
@@ -226,7 +229,8 @@ RUN systemctl enable \
   NetworkManager.service \
   systemd-sysusers.service \
   systemd-resolved.service \
-  bluetooth.service
+  bluetooth.service \
+  greetd.service
 RUN systemctl enable --global \
   dms.service \
   gnome-keyring-daemon.service \
