@@ -3,9 +3,6 @@ COPY system_files /
 
 ENV DRACUT_NO_XATTR=1
 
-# Temporary resolv.conf. We set --dns=none so that /etc/resolv.conf doesn't get mounted into the image.
-RUN echo -e 'nameserver 1.1.1.1' > /etc/resolv.conf
-
 # Move /var/lib/pacman, /var/log/pacman.log, and /var/cache/pacman to /usr/lib/sysimage.
 # The rest of this process is handled in system_files/etc/pacman.conf
 RUN mkdir -p /usr/lib/sysimage/{lib,cache,log} && \
@@ -265,9 +262,6 @@ RUN sed -i 's|^HOME=.*|HOME=/var/home|' "/etc/default/useradd" && \
 
 # Cleanup pacman directories after installation
 RUN rm -rf /usr/lib/sysimage/log /usr/lib/sysimage/cache/pacman/pkg
-
-# Make /etc/resolv.conf link to /run/systemd/resolve/stub-resolv.conf by default
-RUN ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
 
 # Setup a temporary root passwd (1234) for dev purposes
 # RUN usermod -p "$(echo "1234" | mkpasswd -s)" root
