@@ -227,7 +227,7 @@ RUN pacman -S --noconfirm \
 # Enable systemd services
 RUN systemctl enable \
   NetworkManager.service \
-  systemd-sysusers.service \
+  sysusers.service \
   systemd-resolved.service \
   bluetooth.service \
   greetd.service
