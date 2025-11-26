@@ -4,7 +4,7 @@ base_dir := env("BUILD_BASE_DIR", ".")
 filesystem := env("BUILD_FILESYSTEM", "btrfs")
 
 build-containerfile $image_name=image_name:
-    sudo podman build -t "${image_name}:latest" .
+    sudo podman build --dns=none -t "${image_name}:latest" .
 
 bootc *ARGS:
     sudo podman run \
