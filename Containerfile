@@ -66,6 +66,7 @@ RUN pacman -S --noconfirm \
   rust \
   lsof \
   bc \
+  bat \
   wget \
   curl \
   jq \
@@ -88,6 +89,8 @@ RUN pacman -S --noconfirm \
   iperf3 \
   nmap \
   ripgrep \
+  inetutils \
+  jujutsu \
   lsd \
   neovim \
   nano \
@@ -96,6 +99,7 @@ RUN pacman -S --noconfirm \
   htop \
   nvtop \
   python-pipx \
+  starship \
   bash-completion \
   nushell \
   zsh \
@@ -151,6 +155,7 @@ RUN pacman -S --noconfirm \
   chaotic-aur/grimblast-git \
   danklinux/dms-shell \
   danklinux/greetd-dms-greeter \
+  mate-polkit \
   brightnessctl \
   cava \
   wl-clipboard \
@@ -160,6 +165,7 @@ RUN pacman -S --noconfirm \
   cliphist \
   dgop \
   quickshell \
+  matugen \
   kitty \
   ghostty \
   sxiv \
