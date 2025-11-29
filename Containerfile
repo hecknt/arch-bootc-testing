@@ -155,6 +155,8 @@ RUN pacman -S --noconfirm \
   chaotic-aur/grimblast-git \
   danklinux/dms-shell \
   danklinux/greetd-dms-greeter \
+  danklinux/dsearch \
+  accountsservice \
   mate-polkit \
   brightnessctl \
   cava \
