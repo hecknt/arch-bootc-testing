@@ -149,9 +149,10 @@ RUN pacman -S --noconfirm \
   qt5ct
 
 ## Desktop Environment (Dank)
+## TODO: remove xwayland-satellite from danklinux repo when extras updates to 0.8
 RUN pacman -S --noconfirm \
   niri \
-  xwayland-satellite \
+  danklinux/xwayland-satellite \
   hyprland \
   chaotic-aur/grimblast-git \
   danklinux/dms-shell \
