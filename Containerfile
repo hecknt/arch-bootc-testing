@@ -82,6 +82,7 @@ RUN pacman -S --noconfirm \
   7zip \
   unrar \
   unzip \
+  dmidecode \
   yt-dlp \
   figlet \
   lolcat \
@@ -230,6 +231,7 @@ RUN pacman -S --noconfirm \
   edk2-ovmf \
   guestfs-tools \
   virt-manager \
+  swtpm \
   pnpm \
   bpftop \
   bpftrace \
@@ -241,9 +243,11 @@ RUN systemctl enable \
   sysusers.service \
   systemd-resolved.service \
   bluetooth.service \
-  greetd.service
+  greetd.service \
+  libvirtd.service
 RUN systemctl enable --global \
   dms.service \
+  dsearch.service \
   gnome-keyring-daemon.service \
   gnome-keyring-daemon.socket
 
