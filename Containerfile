@@ -177,7 +177,10 @@ RUN pacman -S --noconfirm \
   fprintd \
   wev \
   ddcutil \
-  ydotool
+  ydotool \
+  dolphin \
+  archlinux-xdg-menu \
+  xdg-desktop-portal-kde
 
 ## Fonts
 RUN pacman -S --noconfirm \
