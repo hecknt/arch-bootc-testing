@@ -146,7 +146,8 @@ RUN pacman -S --noconfirm \
   adw-gtk-theme \
   nwg-look \
   chaotic-aur/qt6ct-kde \
-  qt5ct
+  qt5ct \
+  libappimage
 
 ## Desktop Environment (Dank)
 ## TODO: remove xwayland-satellite from danklinux repo when extras updates to 0.8
@@ -180,7 +181,8 @@ RUN pacman -S --noconfirm \
   ydotool \
   dolphin \
   archlinux-xdg-menu \
-  xdg-desktop-portal-kde
+  xdg-desktop-portal-kde \
+  ark
 
 ## Fonts
 RUN pacman -S --noconfirm \
