@@ -182,7 +182,8 @@ RUN pacman -S --noconfirm \
   dolphin \
   archlinux-xdg-menu \
   xdg-desktop-portal-kde \
-  ark
+  ark \
+  udiskie
 
 ## Fonts
 RUN pacman -S --noconfirm \
@@ -255,7 +256,8 @@ RUN systemctl enable --global \
   dms.service \
   dsearch.service \
   gnome-keyring-daemon.service \
-  gnome-keyring-daemon.socket
+  gnome-keyring-daemon.socket \
+  udiskie.service
 
 # Link neovim to vi and vim binaries
 RUN ln -s ./nvim /usr/bin/vim && \
