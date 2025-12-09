@@ -220,7 +220,6 @@ RUN pacman -S --noconfirm \
   docker \
   distrobox \
   toolbox \
-  bootc/podman-tui \
   podman-compose \
   docker-compose \
   bootc/bcvk \
@@ -271,7 +270,6 @@ RUN echo "%wheel      ALL=(ALL:ALL) ALL" | tee -a /etc/sudoers
 # Install bootc and bootupd (bootloader updater)
 RUN pacman -S --noconfirm \
   bootc-testing/bootc-git \
-  bootc/bootupd \
   bootc/uupd && \
   systemctl enable uupd.timer
 
