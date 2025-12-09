@@ -61,6 +61,7 @@ RUN yes | pacman -S iptables-nft
 RUN pacman -S --noconfirm \
   arch-install-scripts \
   fastfetch \
+  chezmoi \
   git \
   cryfs \
   rust \
