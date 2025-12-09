@@ -159,6 +159,7 @@ RUN pacman -S --noconfirm \
   chaotic-aur/grimblast-git \
   danklinux/dms-shell \
   danklinux/greetd-dms-greeter \
+  danklinux/quickshell-git \
   danklinux/dsearch \
   accountsservice \
   mate-polkit \
@@ -170,7 +171,6 @@ RUN pacman -S --noconfirm \
   gnome-keyring \
   cliphist \
   dgop \
-  quickshell \
   matugen \
   kitty \
   ghostty \
