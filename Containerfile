@@ -67,6 +67,7 @@ RUN pacman -S --noconfirm \
   lsof \
   bc \
   bat \
+  fzf \
   wget \
   curl \
   jq \
