@@ -93,6 +93,7 @@ RUN pacman -S --noconfirm \
   nmap \
   ripgrep \
   inetutils \
+  power-profiles-daemon \
   jujutsu \
   lsd \
   neovim \
@@ -152,10 +153,9 @@ RUN pacman -S --noconfirm \
   libappimage
 
 ## Desktop Environment (Dank)
-## TODO: remove xwayland-satellite from danklinux repo when extras updates to 0.8
 RUN pacman -S --noconfirm \
   niri \
-  danklinux/xwayland-satellite \
+  xwayland-satellite \
   hyprland \
   chaotic-aur/grimblast-git \
   danklinux/dms-shell \
