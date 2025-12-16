@@ -152,12 +152,17 @@ RUN pacman -S --noconfirm \
   qt5ct \
   libappimage
 
+## XDG desktop portals
+RUN pacman -S --noconfirm \
+  xdg-desktop-portal-gnome \
+  xdg-desktop-portal-gtk \
+  xdg-desktop-portal-kde && \
+  rm -f /usr/share/wayland-sessions/plasma.desktop
+
 ## Desktop Environment (Dank)
 RUN pacman -S --noconfirm \
   niri \
   xwayland-satellite \
-  hyprland \
-  chaotic-aur/grimblast-git \
   danklinux/dms-shell \
   danklinux/greetd-dms-greeter \
   danklinux/quickshell-git \
@@ -199,11 +204,6 @@ RUN pacman -S --noconfirm \
   noto-fonts-cjk \
   noto-fonts-emoji \
   noto-fonts-extra
-
-## XDG desktop portals
-RUN pacman -S --noconfirm \
-  xdg-desktop-portal-gnome \
-  xdg-desktop-portal-gtk
 
 ## Games! Steam! Games!
 RUN pacman -S --noconfirm \
