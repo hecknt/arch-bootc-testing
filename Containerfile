@@ -124,10 +124,6 @@ RUN pacman -S --noconfirm \
   vulkan-icd-loader \
   vulkan-intel \
   vulkan-radeon \
-  lib32-vulkan-icd-loader \
-  lib32-vulkan-intel \
-  lib32-vulkan-radeon \
-  lib32-mesa \
   clinfo
 
 ## Bluetooth
@@ -206,15 +202,6 @@ RUN pacman -S --noconfirm \
   noto-fonts-emoji \
   noto-fonts-extra
 
-## Games! Steam! Games!
-RUN pacman -S --noconfirm \
-  steam \
-  gamescope \
-  umu-launcher \
-  wine \
-  winetricks \
-  mangohud
-
 # Non-system level packages! distrobox, toolbox, flatpak... etc. Also podman and docker. And LXC.
 RUN pacman -S --noconfirm \
   podman \
@@ -235,13 +222,7 @@ RUN pacman -S --noconfirm \
 RUN pacman -S --noconfirm \
   android-tools \
   android-udev \
-  libvirt \
-  qemu-desktop \
-  edk2-ovmf \
   guestfs-tools \
-  virt-manager \
-  swtpm \
-  pnpm \
   bpftop \
   bpftrace \
   --assume-installed vim # we have neovim, we don't need vim
