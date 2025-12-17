@@ -1,5 +1,6 @@
 FROM docker.io/archlinux/archlinux:latest
 COPY system_files /
+COPY --from=ghcr.io/projectbluefin/brew:latest /system_files /
 
 ENV DRACUT_NO_XATTR=1
 
@@ -252,7 +253,8 @@ RUN systemctl enable \
   systemd-resolved.service \
   bluetooth.service \
   greetd.service \
-  libvirtd.service
+  libvirtd.service \
+  brew-setup.service
 RUN systemctl enable --global \
   dms.service \
   dsearch.service \
