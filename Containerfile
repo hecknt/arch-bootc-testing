@@ -222,7 +222,6 @@ RUN pacman -S --noconfirm \
 RUN pacman -S --noconfirm \
   android-tools \
   android-udev \
-  guestfs-tools \
   bpftop \
   bpftrace \
   --assume-installed vim # we have neovim, we don't need vim
@@ -234,7 +233,6 @@ RUN systemctl enable \
   systemd-resolved.service \
   bluetooth.service \
   greetd.service \
-  libvirtd.service \
   brew-setup.service
 RUN systemctl enable --global \
   dms.service \
