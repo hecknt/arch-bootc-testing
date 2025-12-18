@@ -1,0 +1,10 @@
+# /etc/zshrc
+# vim:ts=2:sw=2
+
+if [ -z "$ZSHRCSOURCED" ]; then
+  ZSHRCSOURCED="Y"
+
+  for f in /etc/zsh/zshrc.d/*.sh; do
+    . "$f"
+  done
+fi
