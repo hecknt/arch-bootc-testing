@@ -1,6 +1,6 @@
 FROM docker.io/archlinux/archlinux:latest
 COPY system_files /
-COPY --from=ghcr.io/projectbluefin/brew:latest /system_files /
+COPY --from=ghcr.io/ublue-os/brew:latest /system_files /
 
 ENV DRACUT_NO_XATTR=1
 
