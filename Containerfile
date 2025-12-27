@@ -176,7 +176,7 @@ RUN pacman -S --noconfirm \
   dgop \
   matugen \
   kitty \
-  ghostty \
+  foot \
   sxiv \
   mpv \
   fprintd \
