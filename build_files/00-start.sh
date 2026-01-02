@@ -18,7 +18,7 @@ echo -e '[danklinux]\nSigLevel = Required\nServer=https://github.com/hecknt/arch
 pacman -Syu --noconfirm
 
 # Remove kernel from base image and any existing modules
-pacman -Rns linux
+pacman -Rns --noconfirm linux
 rm -rf /usr/lib/modules
 
 # Base packages. The bare essentials.
