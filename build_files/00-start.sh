@@ -2,13 +2,6 @@
 
 set -xeu
 
-# Move /var/lib/pacman, /var/log/pacman.log, and /var/cache/pacman to /usr/lib/sysimage.
-# The rest of this process is handled in system_files/etc/pacman.conf
-mkdir -p /usr/lib/sysimage/{lib,cache,log} && \
-  mv /var/lib/pacman /usr/lib/sysimage/lib/pacman && \
-  mv /var/cache/pacman /usr/lib/sysimage/cache/pacman && \
-  mv /var/log/pacman.log /usr/lib/sysimage/log/pacman.log
-
 # Add Chaotic AUR repo
 pacman-key --recv-key 3056513887B78AEB --keyserver keyserver.ubuntu.com
 pacman-key --lsign-key 3056513887B78AEB
