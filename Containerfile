@@ -1,4 +1,8 @@
-FROM docker.io/archlinux/archlinux:latest
+FROM scratch AS ctx
+
+COPY build_files /
+
+FROM ghcr.io/hecknt/archlinux-bootc:latest
 COPY system_files /
 COPY --from=ghcr.io/ublue-os/brew:latest /system_files /
 
@@ -7,272 +11,33 @@ ENV DRACUT_NO_XATTR=1
 # Temporary resolv.conf. We set --dns=none so that /etc/resolv.conf doesn't get mounted into the image.
 RUN echo -e 'nameserver 1.1.1.1' > /etc/resolv.conf
 
-# Move /var/lib/pacman, /var/log/pacman.log, and /var/cache/pacman to /usr/lib/sysimage.
-# The rest of this process is handled in system_files/etc/pacman.conf
-RUN mkdir -p /usr/lib/sysimage/{lib,cache,log} && \
-  mv /var/lib/pacman /usr/lib/sysimage/lib/pacman && \
-  mv /var/cache/pacman /usr/lib/sysimage/cache/pacman && \
-  mv /var/log/pacman.log /usr/lib/sysimage/log/pacman.log
+RUN --mount=type=bind,from=ctx,source=/,target=/ctx \
+  --mount=type=tmpfs,dst=/tmp \
+  /ctx/00-start.sh
 
-# Add Chaotic AUR repo
-RUN pacman-key --recv-key 3056513887B78AEB --keyserver keyserver.ubuntu.com
-RUN pacman-key --init && pacman-key --lsign-key 3056513887B78AEB
-RUN pacman -U 'https://cdn-mirror.chaotic.cx/chaotic-aur/chaotic-keyring.pkg.tar.zst' --noconfirm
-RUN pacman -U 'https://cdn-mirror.chaotic.cx/chaotic-aur/chaotic-mirrorlist.pkg.tar.zst' --noconfirm
-RUN echo -e '[chaotic-aur]\nInclude = /etc/pacman.d/chaotic-mirrorlist' >> /etc/pacman.conf
+RUN --mount=type=bind,from=ctx,source=/,target=/ctx \
+  --mount=type=tmpfs,dst=/tmp \
+  /ctx/01-drivers.sh
 
-# Add bootc repo
-RUN pacman-key --recv-key 5DE6BF3EBC86402E7A5C5D241FA48C960F9604CB --keyserver keyserver.ubuntu.com
-RUN pacman-key --lsign-key 5DE6BF3EBC86402E7A5C5D241FA48C960F9604CB
-RUN echo -e '[bootc]\nSigLevel = Required\nServer=https://github.com/hecknt/arch-bootc-pkgs/releases/download/$repo' >> /etc/pacman.conf
-# Add bootc-testing repo
-RUN echo -e '[bootc-testing]\nSigLevel = Required\nServer=https://github.com/hecknt/arch-bootc-pkgs/releases/download/$repo' >> /etc/pacman.conf
-# Add danklinux repo
-RUN echo -e '[danklinux]\nSigLevel = Required\nServer=https://github.com/hecknt/arch-danklinux-pkgs/releases/download/$repo' >> /etc/pacman.conf
+RUN --mount=type=bind,from=ctx,source=/,target=/ctx \
+  --mount=type=tmpfs,dst=/tmp \
+  /ctx/10-dev.sh
 
-# Refresh & upgrade all packages before we get started.
-RUN pacman -Syu --noconfirm
+RUN --mount=type=bind,from=ctx,source=/,target=/ctx \
+  --mount=type=tmpfs,dst=/tmp \
+  /ctx/20-desktop.sh
 
-# Base packages. The bare essentials.
-RUN pacman -S --noconfirm \
-  base \
-  base-devel \
-  dracut \
-  linux-zen \
-  linux-firmware \
-  networkmanager \
-  ostree \
-  btrfs-progs \
-  e2fsprogs \
-  xfsprogs \
-  dosfstools \
-  skopeo \
-  dbus \
-  dbus-glib \
-  glib2 \
-  strace \
-  glibc-locales \
-  plymouth \
-  shadow
+RUN --mount=type=bind,from=ctx,source=/,target=/ctx \
+  --mount=type=tmpfs,dst=/tmp \
+  /ctx/21-fonts.sh
 
-# Replace iptables with iptables-nft
-RUN yes | pacman -S iptables-nft
+RUN --mount=type=bind,from=ctx,source=/,target=/ctx \
+  --mount=type=tmpfs,dst=/tmp \
+  /ctx/98-bootc.sh
 
-# Command Line utilities / shells
-RUN pacman -S --noconfirm \
-  arch-install-scripts \
-  fastfetch \
-  chezmoi \
-  git \
-  cryfs \
-  rust \
-  lsof \
-  bc \
-  bat \
-  fzf \
-  wget \
-  curl \
-  jq \
-  less \
-  just \
-  openssh \
-  man-db \
-  powertop \
-  tree \
-  usbutils \
-  tar \
-  whois \
-  7zip \
-  unrar \
-  unzip \
-  dmidecode \
-  yt-dlp \
-  figlet \
-  lolcat \
-  cowsay \
-  iperf3 \
-  nmap \
-  ripgrep \
-  inetutils \
-  power-profiles-daemon \
-  jujutsu \
-  lsd \
-  neovim \
-  nano \
-  micro \
-  btop \
-  htop \
-  nvtop \
-  python-pipx \
-  starship \
-  bash-completion \
-  nushell \
-  zsh \
-  zsh-completions
-
-# Desktop Section
-## Drivers
-RUN pacman -S --noconfirm \
-  amd-ucode \
-  intel-ucode \
-  efibootmgr \
-  shim \
-  mesa \
-  libva-intel-driver \
-  libva-mesa-driver \
-  vpl-gpu-rt \
-  vulkan-icd-loader \
-  vulkan-intel \
-  vulkan-radeon \
-  clinfo
-
-## Bluetooth
-RUN pacman -S --noconfirm \
-  bluez \
-  bluez-utils
-
-## Pipewire
-RUN pacman -S --noconfirm \
-  pipewire \
-  pipewire-pulse \
-  pipewire-zeroconf \
-  pipewire-ffado \
-  pipewire-libcamera \
-  sof-firmware \
-  wireplumber
-
-## Theming
-RUN pacman -S --noconfirm \
-  adw-gtk-theme \
-  nwg-look \
-  chaotic-aur/qt6ct-kde \
-  qt5ct \
-  libappimage
-
-## XDG desktop portals
-RUN pacman -S --noconfirm \
-  xdg-desktop-portal-gnome \
-  xdg-desktop-portal-gtk \
-  xdg-desktop-portal-kde && \
-  rm -f /usr/share/wayland-sessions/plasma.desktop
-
-## Desktop Environment (Dank)
-RUN pacman -S --noconfirm \
-  niri \
-  xwayland-satellite \
-  danklinux/dms-shell \
-  danklinux/greetd-dms-greeter \
-  danklinux/quickshell-git \
-  danklinux/dsearch \
-  accountsservice \
-  mate-polkit \
-  brightnessctl \
-  cava \
-  wl-clipboard \
-  gammastep \
-  appstream-glib \
-  gnome-keyring \
-  cliphist \
-  dgop \
-  matugen \
-  kitty \
-  foot \
-  sxiv \
-  mpv \
-  fprintd \
-  wev \
-  ddcutil \
-  ydotool \
-  dolphin \
-  archlinux-xdg-menu \
-  xdg-desktop-portal-kde \
-  ark \
-  udiskie
-
-## Fonts
-RUN pacman -S --noconfirm \
-  ttf-jetbrains-mono \
-  ttf-fira-code \
-  ttf-ibm-plex \
-  ttf-jetbrains-mono-nerd \
-  ttf-firacode-nerd \
-  otf-font-awesome \
-  noto-fonts \
-  noto-fonts-cjk \
-  noto-fonts-emoji \
-  noto-fonts-extra
-
-# Non-system level packages! distrobox, toolbox, flatpak... etc. Also podman and docker. And LXC.
-RUN pacman -S --noconfirm \
-  podman \
-  docker \
-  distrobox \
-  toolbox \
-  podman-compose \
-  docker-compose \
-  bootc/bcvk \
-  docker-buildx \
-  chaotic-aur/flatpak-git \
-  flatpak-builder \
-  lxc \
-  incus \
-  incus-tools
-
-# ADB, Virtualization, Building tools...
-RUN pacman -S --noconfirm \
-  android-tools \
-  android-udev \
-  bpftop \
-  bpftrace \
-  --assume-installed vim # we have neovim, we don't need vim
-
-# Enable systemd services
-RUN systemctl enable \
-  NetworkManager.service \
-  sysusers.service \
-  systemd-resolved.service \
-  bluetooth.service \
-  greetd.service \
-  brew-setup.service
-RUN systemctl enable --global \
-  dms.service \
-  dsearch.service \
-  gnome-keyring-daemon.service \
-  gnome-keyring-daemon.socket \
-  udiskie.service
-
-# Link neovim to vi and vim binaries
-RUN ln -s ./nvim /usr/bin/vim && \
-  ln -s ./nvim /usr/bin/vi
-
-# Add wheel group to sudoers file
-RUN echo "%wheel      ALL=(ALL:ALL) ALL" | tee -a /etc/sudoers
-
-# Install bootc and bootupd (bootloader updater)
-RUN pacman -S --noconfirm \
-  bootc-testing/bootc-git \
-  bootc/uupd && \
-  systemctl enable uupd.timer
-
-# Rebuild initramfs after bootc install
-RUN dracut --force --verbose "$(find /usr/lib/modules -maxdepth 1 -type d | grep -v -E "*.img" | tail -n 1)/initramfs.img"
-
-# Necessary for general behavior expected by image-based systems
-RUN sed -i 's|^HOME=.*|HOME=/var/home|' "/etc/default/useradd" && \
-  rm -rf /boot /home /root /usr/local /srv /mnt /var && \
-  mkdir -p /var /sysroot /boot /usr/lib/ostree && \
-  ln -s var/opt /opt && \
-  ln -s var/roothome /root && \
-  ln -s var/home /home && \
-  ln -s var/srv /srv && \
-  ln -s var/mnt /mnt && \
-  ln -s sysroot/ostree /ostree
-
-# Cleanup pacman directories after installation
-RUN rm -rf /usr/lib/sysimage/log /usr/lib/sysimage/cache/pacman/pkg
-
-# Remove /etc/resolv.conf, we use tmpfiles.d to link it to /run/systemd/resolve/resolv.conf
-RUN rm -f /etc/resolv.conf
+RUN --mount=type=bind,from=ctx,source=/,target=/ctx \
+  --mount=type=tmpfs,dst=/tmp \
+  /ctx/99-cleanup.sh
 
 # Setup a temporary root passwd (1234) for dev purposes
 # RUN usermod -p "$(echo "1234" | mkpasswd -s)" root
