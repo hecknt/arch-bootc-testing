@@ -3,6 +3,7 @@
 set -exuo pipefail
 
 # Install bootc & uupd
+pacman -R --noconfirm bootc
 pacman -S --noconfirm \
   bootc-testing/bootc-git \
   bootc/uupd
