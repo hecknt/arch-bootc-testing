@@ -19,7 +19,7 @@ pacman -Syu --noconfirm
 
 # Remove kernel from base image and any existing modules
 pacman -Rns --noconfirm linux
-rm -rf /usr/lib/modules
+rm -rfv /usr/lib/modules
 
 # Base packages. The bare essentials.
 pacman -S --noconfirm --needed \
