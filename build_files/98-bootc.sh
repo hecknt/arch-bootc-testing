@@ -2,10 +2,11 @@
 
 set -exuo pipefail
 
-# Install bootc & uupd
+# Install bootc & uupd & bootupd
 pacman -R --noconfirm bootc
 pacman -S --noconfirm \
   bootc-testing/bootc-git \
+  bootc/bootupd \
   bootc/uupd
 
 systemctl enable uupd.timer
